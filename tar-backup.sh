@@ -34,7 +34,7 @@ MAXB=2
 ##############################################################################
 # Only modify variables below this point if you know what you're doing
 ##############################################################################
-
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
 BNAME="root-$(hostname -s)"
 XCF=${LSCRIPTPATH}/exclude-file
 ALST=${LSCRIPTPATH}/all-files
