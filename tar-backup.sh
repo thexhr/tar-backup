@@ -47,8 +47,8 @@ f=${LSCRIPTPATH}/lnum
 [ ! -f ${f} ] && echo "[-] Cannot find number file.  Create one" && echo "1" > ${f}
 num=$(cat ${f})
 
-echo "[+] Start backup process, Level ${num} ..."
-echo "    $(date)"
+echo -n "[+] Start backup process, Level ${num}: "
+echo "$(date)"
 
 # Create a list of all files to backup
 find / \! -type d > ${ALST} && echo "[+] Created list of files to backup"
@@ -80,7 +80,7 @@ fi
 newnum=$((${num} + 1))
 echo ${newnum} > ${f}
 
-echo "[+] Backup done"
-echo "    $(date)"
+echo -n "[+] Backup done: "
+echo "$(date)"
 
 exit $?
