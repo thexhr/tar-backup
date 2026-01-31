@@ -14,24 +14,32 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-# FQDN and user name for your target backup host
+##############################################################################
+# Modify the following variables to fit your needs
+##############################################################################
+
+# Host and user name of your SSH target backup host
 THOST=backup@target.invalid
-# SSH port of the target
+# SSH port of the target host
 TPORT=22
 # Path for backups on the target host
 TPATH="/home/backup"
-# Directory where the script is located
+# Local path where this script is located
 LSCRIPTPATH="/root/tar-backup"
-# Local path to the private SSH key
+# Local path to the private SSH key used to login to $THOST
 TKEY="${LSCRIPTPATH}/dump-backup"
+# Number of backups to keep
+MAXB=2
 
 ##############################################################################
+# Only modify variables below this point if you know what you're doing
+##############################################################################
+
 BNAME="root-$(hostname -s)"
 XCF=${LSCRIPTPATH}/exclude-file
 ALST=${LSCRIPTPATH}/all-files
 PLST=${LSCRIPTPATH}/pruned-list
 f=${LSCRIPTPATH}/lnum
-_max=2
 
 [ ! -f ${TKEY} ] && echo "[-] Cannot find SSH key file. Abort" && exit 1
 [ ! -f ${XCF} ] && echo "[-] Cannot find exclude list. Abort" && exit 1
@@ -48,7 +56,7 @@ find / \! -type d > ${ALST} && echo "[+] Created list of files to backup"
 # Prune the list
 egrep -f ${XCF} -v ${ALST} > ${PLST} && echo "[+] List successfully pruned"
 
-# Create _max dumps and then overwrite the first one again
+# Create MAXB dumps and then overwrite the first one again
 tar -C / -cNzpf - -I ${PLST} | \
 	age -R ${TKEY}.pub | \
         ssh -i ${TKEY} ${THOST} -p ${TPORT} "cat > ${TPATH}/${BNAME}-${num}.tar.gz.age" && \
@@ -62,7 +70,7 @@ ssh -i ${TKEY} ${THOST} -p ${TPORT} "cd ${TPATH} && chmod 600 *.tar.gz*" && \
 echo "[+] Show files on remote side"
 ssh -i ${TKEY} ${THOST} -p ${TPORT} "ls -lh ${TPATH}"
 
-if [ ${num} -ge ${_max} ]; then
+if [ ${num} -ge ${MAXB} ]; then
         num=0
         echo "[+] Rollover backup cycle"
 else
